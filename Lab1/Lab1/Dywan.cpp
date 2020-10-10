@@ -2,12 +2,45 @@
 #include <windows.h>
 #include <utility> 
 #include <iostream> 
+#include <stdlib.h> // rand
+#include <time.h> // ustawienie ziarna rand
 #include <gl/gl.h>
 #include <gl/glut.h>
 
 using namespace std;
 
 int N; // liczba poziomow
+
+float genFloatRGB() // generaterandom number <0.0, 1.0>
+{
+    float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);  //https://stackoverflow.com/questions/686353/random-float-number-generation
+    return r;
+}
+
+float genFloatOffset() // generaterandom number <<?>
+{
+    float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);  
+    return (float) 2*r;
+}
+
+void drawPolygon(float x1, float y1, float x2, float y2)
+{
+    glBegin(GL_POLYGON);
+
+    glColor3f(genFloatRGB(), genFloatRGB(), genFloatRGB());
+    glVertex2f(x1+ genFloatOffset(), y1+ genFloatOffset());
+
+    glColor3f(genFloatRGB(), genFloatRGB(), genFloatRGB());
+    glVertex2f(x2 + genFloatOffset(), y1 + genFloatOffset());
+
+    glColor3f(genFloatRGB(), genFloatRGB(), genFloatRGB());
+    glVertex2f(x2 + genFloatOffset(), y2 + genFloatOffset());
+
+    glColor3f(genFloatRGB(), genFloatRGB(), genFloatRGB());
+    glVertex2f(x1 + genFloatOffset(), y2 + genFloatOffset());
+
+    glEnd();
+}
 
 void divRect(float x1, float y1, float x2, float y2, int numberOfLevels, bool firstTime)
 {
@@ -20,12 +53,15 @@ void divRect(float x1, float y1, float x2, float y2, int numberOfLevels, bool fi
         firstTime = FALSE;
     }
 
+    //drawPolygon(x1, y1, x2, y2);
+    //return;
+
     // height = width 
     float width = x2 - x1;
     float height = y2 - y1;
 
-    glColor3f(0.0f, 1.0f, 0.0f);
-    glRectf(x1, y1, x2, y2);        // kwadrat bazowy
+    //glColor3f(0.0f, 1.0f, 0.0f);
+    drawPolygon(x1, y1, x2, y2);   //glRectf(x1, y1, x2, y2);        // kwadrat bazowy
 
     pair <float, float> vertex1(x1, y1);
     pair <float, float> vertex2(x1, height/3 + y1);
@@ -46,18 +82,18 @@ void divRect(float x1, float y1, float x2, float y2, int numberOfLevels, bool fi
     //cout << "v6x: " << vertex6.first << "v6y" << vertex6.second;
     //cout << vertex6.first << " " << vertex6.second << " " << vertex10.first << " " << vertex10.second;
 
-    glColor3f(0.0f, 0.0f, 1.0f);    // tutaj insert background color
+    glColor3f(0.305f, 0.305f, 0.294f);    // tutaj insert background color
     glRectf(vertex6.first, vertex6.second, vertex10.first, vertex10.second);    // kwadrat srodkowy
 
     // wywolania rekurencyjne dla pozostalych kwadratow
-    divRect(vertex1.first, vertex1.second, vertex6.first, vertex6.second, numberOfLevels - 1, FALSE); // 1
-    divRect(vertex2.first, vertex2.second, vertex5.first, vertex5.second, numberOfLevels - 1, FALSE); // 2
-    divRect(vertex3.first, vertex3.second, vertex4.first, vertex4.second, numberOfLevels - 1, FALSE); // 3
-    divRect(vertex5.first, vertex5.second, vertex11.first, vertex11.second, numberOfLevels - 1, FALSE); // 4
-    divRect(vertex7.first, vertex7.second, vertex9.first, vertex9.second, numberOfLevels - 1, FALSE); // 6
-    divRect(vertex10.first, vertex10.second, vertex12.first, vertex12.second, numberOfLevels - 1, FALSE); // 9
-    divRect(vertex9.first, vertex9.second, vertex13.first, vertex13.second, numberOfLevels - 1, FALSE); // 8
-    divRect(vertex8.first, vertex8.second, vertex14.first, vertex14.second, numberOfLevels - 1, FALSE); // 7
+    divRect(vertex1.first, vertex1.second, vertex6.first, vertex6.second, numberOfLevels - 1, FALSE);       // 1
+    divRect(vertex2.first, vertex2.second, vertex5.first, vertex5.second, numberOfLevels - 1, FALSE);       // 2
+    divRect(vertex3.first, vertex3.second, vertex4.first, vertex4.second, numberOfLevels - 1, FALSE);       // 3
+    divRect(vertex5.first, vertex5.second, vertex11.first, vertex11.second, numberOfLevels - 1, FALSE);     // 4
+    divRect(vertex7.first, vertex7.second, vertex9.first, vertex9.second, numberOfLevels - 1, FALSE);        // 6
+    divRect(vertex10.first, vertex10.second, vertex12.first, vertex12.second, numberOfLevels - 1, FALSE);   // 9
+    divRect(vertex9.first, vertex9.second, vertex13.first, vertex13.second, numberOfLevels - 1, FALSE);     // 8
+    divRect(vertex8.first, vertex8.second, vertex14.first, vertex14.second, numberOfLevels - 1, FALSE);     // 7
 }
 
 
@@ -78,7 +114,7 @@ void RenderScene(void)
 // Funkcja ustalaj¹ca stan renderowania
 void MyInit(void)
 {
-    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);     // Kolor okna wnêtrza okna - ustawiono na szary
+    glClearColor(0.305f, 0.305f, 0.294f, 1.0f);     // Kolor okna wnêtrza okna - ustawiono na szary (R, G, B, alpha)
 }
 
 // Parametry horizontal i vertical (szerokoœæ i wysokoœæ okna) s¹ przekazywane do funkcji za ka¿dym razem, gdy zmieni siê rozmiar okna
@@ -118,6 +154,8 @@ void ChangeSize(GLsizei horizontal, GLsizei vertical)
 // G³ówny punkt wejœcia programu. Program dzia³a w trybie konsoli
 int main()
 {
+    srand((unsigned)time(NULL)); // rand sie nie powtarza z kazdym uruchomieniem; inne ziarno
+
     cout << "How many levels?\n";
     cin >> N;
 
