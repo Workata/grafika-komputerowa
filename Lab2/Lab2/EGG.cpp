@@ -24,6 +24,7 @@ vector<vector<point>> coords;
 
 int N;
 static GLfloat theta[] = { 0.0, 0.0, 0.0 };  // trzy k¹ty obrotu; theta[0] - x, theta[1] - y, theta[2] - z, 
+static GLfloat thetaMini[] = { 0.0, 0.0, 0.0 };  // trzy k¹ty obrotu; theta[0] - x, theta[1] - y, theta[2] - z, 
 bool rotationX = FALSE, rotationY = TRUE;    // default rotation is Y
 int model = 1;                              // 1- punkty, 2- linie, 3 - wype³nione trójk¹ty; default model -> points
 
@@ -55,6 +56,18 @@ void spinEgg()
 
     // theta[2] -= 0.5;
     //  if (theta[2] > 360.0) theta[2] -= 360.0;
+
+    if (rotationX)
+    {
+        thetaMini[0] -= 3;
+        if (thetaMini[0] > 360.0) thetaMini[0] -= 360.0;
+    }
+
+    if (rotationY)
+    {
+        thetaMini[1] -= 3;
+        if (thetaMini[1] > 360.0) thetaMini[1] -= 360.0;
+    }
 
     glutPostRedisplay(); //odœwie¿enie zawartoœci aktualnego okna
 }
@@ -113,8 +126,6 @@ void getCoords()
             point.y = 160 * pow(u, 4) - 320 * pow(u, 3) + 160 * pow(u, 2);
             point.z = ((-90) * pow(u, 5) + 225 * pow(u, 4) + (-270) * pow(u, 3) + 180 * pow(u, 2) - 45 * u) * sin(M_PI * v);
 
-            // cout << " x: " << x << " y: " << y << " z: " << z << "\n";
-
             vec.push_back(point);
         }
         coords.push_back(vec);
@@ -148,8 +159,8 @@ void canIOfferYouANiceEggInThisTryingTime()
             }
 
         }
-
         glEnd();
+
     }
     else if (model == 2)
     {
@@ -197,14 +208,89 @@ void canIOfferYouANiceEggInThisTryingTime()
     }
 }
 
+void canIOfferYouANiceMiniEggInThisTryingTime()
+{
+    point3 point;
+    float x, y, z, u, v;
+
+    glColor3f(0.960f, 0.917f, 0.000f);
+
+    // Set position of an EGG and also maybe rotation
+
+    // glRotated(30.0, 1.0, 1.0, 1.0); // left
+    //glRotated(20.0, 1.0, 0.0, 0.0); // (angle) [ vector ] 
+    glTranslatef(4.0f, 5.5f, 0.0f);
+    glScalef(0.5, 0.5, 0.5);
+
+    if (model == 1)
+    {
+
+        glBegin(GL_POINTS);
+        for (int i = 0; i < N; i++)
+        {
+            for (int j = 0; j < N; j++)
+            {
+                glVertex3f(coords[i][j].x, coords[i][j].y, coords[i][j].z);
+            }
+
+        }
+        glEnd();
+    }
+    else if (model == 2)
+    {
+        glBegin(GL_LINES);
+
+        for (int i = 0; i < N; i++)
+        {
+            for (int j = 0; j < N; j++)
+            {
+                if (i != 0 and j != 0)
+                {
+                    glVertex3f(coords[i - 1][j - 1].x, coords[i - 1][j - 1].y, coords[i - 1][j - 1].z);
+                    glVertex3f(coords[i - 1][j].x, coords[i - 1][j].y, coords[i - 1][j].z);
+                    glVertex3f(coords[i][j].x, coords[i][j].y, coords[i][j].z);
+                    glVertex3f(coords[i][j - 1].x, coords[i][j - 1].y, coords[i][j - 1].z);
+                    //glVertex3f(coords[i - 1][j - 1].x, coords[i - 1][j - 1].y, coords[i - 1][j - 1].z);
+                }
+                else glVertex3f(coords[i][j].x, coords[i][j].y, coords[i][j].z);
+            }
+
+        }
+        glEnd();
+    }
+    else if (model == 3)
+    {
+        glBegin(GL_TRIANGLES);
+
+        for (int i = 0; i < N; i++)
+        {
+            for (int j = 0; j < N; j++)
+            {
+                if (i != 0 and j != 0)
+                {
+                    glColor3f(genFloatRGB(), genFloatRGB(), genFloatRGB());
+                    glVertex3f(coords[i - 1][j - 1].x, coords[i - 1][j - 1].y, coords[i - 1][j - 1].z);
+                    glVertex3f(coords[i - 1][j].x, coords[i - 1][j].y, coords[i - 1][j].z);
+                    glVertex3f(coords[i][j].x, coords[i][j].y, coords[i][j].z);
+                    //glVertex3f(coords[i - 1][j - 1].x, coords[i - 1][j - 1].y, coords[i - 1][j - 1].z);
+                }
+                else glVertex3f(coords[i][j].x, coords[i][j].y, coords[i][j].z);
+            }
+
+        }
+        glEnd();
+    }
+}
+
+
 
 // Funkcja okreœlaj¹ca co ma byæ rysowane (zawsze wywo³ywana gdy trzeba
 // przerysowaæ scenê)
 void RenderScene(void)
 {
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // Czyszczenie okna aktualnym kolorem czyszcz¹cym
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Czyszczenie okna aktualnym kolorem czyszcz¹cym
+    
 
     glLoadIdentity();   // Czyszczenie macierzy bie¿¹cej
    
@@ -214,18 +300,16 @@ void RenderScene(void)
 
     if(rotationX) glRotatef(theta[0], 1.0, 0.0, 0.0);   // obrot wokol osi x     
     if(rotationY) glRotatef(theta[1], 0.0, 1.0, 0.0);   // obrot wokol osi y
-    // glRotatef(theta[2], 0.0, 0.0, 1.0);
 
     canIOfferYouANiceEggInThisTryingTime();
-   // glColor3f(1.0f, 1.0f, 1.0f);    // Ustawienie koloru rysowania na bia³y
-    //glutWireTeapot(3.0);             // Narysowanie obrazu czajnika do herbaty
+
+    if (rotationX) glRotatef(thetaMini[0], 1.0, 0.0, 0.0);   // obrot wokol osi x     
+    if (rotationY) glRotatef(thetaMini[1], 0.0, 1.0, 0.0);   // obrot wokol osi y
+
+    canIOfferYouANiceMiniEggInThisTryingTime();
 
     glFlush();                          // Przekazanie poleceñ rysuj¹cych do wykonania
-   
-
-
     glutSwapBuffers();
-    //
 }
 
 void keysRotation(unsigned char key, int x, int y)
