@@ -41,6 +41,20 @@ static int y_pos_old = 0;
 static int delta_x = 0;
 static int delta_y = 0;
 
+static GLfloat lightTheta = 0.0;
+
+void spinLight() {
+    lightTheta -= 0.1;
+    if (lightTheta > 360.0) lightTheta -= 360.0;
+
+    float R = 10.0;
+    GLfloat light_position_1[] = { R * cos(lightTheta) * cos(45.0),
+        R * sin(45.0), R * sin(lightTheta) * cos(45.0), 1.0 };
+    glLightfv(GL_LIGHT1, GL_POSITION, light_position_1);
+
+    glutPostRedisplay();
+}
+
 void Axes(void) {
     point3  x_min = { -5.0, 0.0, 0.0 };
     point3  x_max = { 5.0, 0.0, 0.0 };
@@ -278,7 +292,9 @@ void MyInit(void) {
 
 
     GLfloat light_position[] = { 0.0, 0.0, 10.0, 1.0 };
-    GLfloat light_position_1[] = { 3.0, 4.0, 10.0, 1.0 };
+    float R = 10.0;
+    GLfloat light_position_1[] = { R * cos(lightTheta) * cos(45.0),
+        R * sin(45.0), R * sin(lightTheta) * cos(45.0), 1.0 };
 
 
     // 0.823, 0.929, 0.070 - yellow
@@ -334,7 +350,7 @@ void MyInit(void) {
     glShadeModel(GL_SMOOTH);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    // glEnable(GL_LIGHT1);
+    glEnable(GL_LIGHT1);
     glEnable(GL_DEPTH_TEST);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -401,6 +417,7 @@ int main() {
     glutMouseFunc(Mouse);
     glutMotionFunc(Motion);
     glutDisplayFunc(RenderScene);
+    glutIdleFunc(spinLight);
 
     glutReshapeFunc(ChangeSize);
     MyInit();
