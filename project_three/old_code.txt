@@ -1,0 +1,15 @@
+            // cube - snake food
+           /* var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+            var material = new THREE.MeshNormalMaterial();
+            var cube_food = new THREE.Mesh( geometry, material );
+            cube_food.position.set(3,3,0)	
+            scene.add( cube_food );
+            food_for_snake.push(cube_food);     // push food (for now only one)
+
+            // cube - snake food
+            var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+            var material = new THREE.MeshNormalMaterial();
+            var cube_food = new THREE.Mesh( geometry, material );
+            cube_food.position.set(1,1,0)	
+            scene.add( cube_food );
+            food_for_snake.push(cube_food);    */ // push food (for now only one)
