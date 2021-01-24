@@ -30,12 +30,6 @@
             //Orbit Controls
             //controls = new THREE.OrbitControls(camera, renderer);
 
-            // grid helper
-            /*var grid = new THREE.GridHelper(100, 10);
-            grid.rotation.x = 90;
-            grid.rotation.y = 90;
-            scene.add(grid);*/
-
             // cube - snake head
             var geometry = new THREE.BoxGeometry( 1, 1, 1 );
             var material = new THREE.MeshBasicMaterial(); // NormalMaterial
@@ -111,84 +105,99 @@
             var old_x_pos;
             var old_y_pos;
 
+            var direction = 'none'; // up, down, left, right, none
+
             // this function is updated every pressed key, WARNING: What about other keys
             // https://stackoverflow.com/questions/42958252/how-do-i-move-a-three-js-cube-with-keyboard-input  
-            // ASCII (decimal): 83 - 'S', 87 - 'W', 65 - 'A', 68 - 'D'
+            // ASCII (decimal): 83 - 'S', 87 - 'W', 65 - 'A', 68 - 'D', set direction
             document.addEventListener("keydown", onDocumentKeyDown, false);
             function onDocumentKeyDown(event) {
-                var keyCode = event.which;  // get ASCII (I think) key Code
+                var keyCode = event.which;  
 
-                // mnove all snake elements
-                for (var i = 0; i < snake_body.length; i++)
-                {
-
-                    console.log("Body length: " + snake_body.length);
-
-                    if(i == 0)  // move snake head snake_body[0] is head
-                    {
-                        old_x_pos = snake_body[i].position.x;
-                        old_y_pos = snake_body[i].position.y;
-                        //console.log("Pressed");
-                        if (keyCode == 87) {
-                            snake_body[i].position.y += ySpeed;
-                        } else if (keyCode == 83) {
-                            snake_body[i].position.y -= ySpeed;
-                        } else if (keyCode == 65) {
-                            snake_body[i].position.x -= xSpeed;
-                        } else if (keyCode == 68) {
-                            snake_body[i].position.x += xSpeed;
-                        } else if (keyCode == 32) {
-                            snake_body[i].position.set(0, 0, 0);
-                        }
-                        
-                        if(isOverYourself(snake_body[i].position.x, snake_body[i].position.y))
-                        {
-                            console.log("Game over");
-                            window.alert("Game over, your score is only: " + (snake_body.length-1) +" . Ha, what a loser!");
-                            location.reload();
-                        }
-                    }
-                    else    // move rest of the body
-                    {
-                        // store actual position of body element
-                        temp_old_x_pos = snake_body[i].position.x;
-                        temp_old_y_pos = snake_body[i].position.y;
-                        // move body element
-                        snake_body[i].position.x = old_x_pos;
-                        snake_body[i].position.y = old_y_pos;
-                        // restore position before element was moved
-                        old_x_pos = temp_old_x_pos;
-                        old_y_pos = temp_old_y_pos;
-
-                    }
-                }
-
-                // check food connection
-                var food_length = food_for_snake.length;
-                for (var i = 0; i < food_length; i++)
-                {
-                    cube_head = snake_body[0];
-                    cube_food = food_for_snake[i];
-                    // first two equations -> connected in x - axis, second two equations -> connected in y axis
-                    if((cube_head.position.x == cube_food.position.x-1 && cube_head.position.y == cube_food.position.y) 
-                    || (cube_head.position.x == cube_food.position.x+1 && cube_head.position.y == cube_food.position.y)
-                    || (cube_head.position.y == cube_food.position.y-1 && cube_head.position.x == cube_food.position.x) 
-                    || (cube_head.position.y == cube_food.position.y+1 && cube_head.position.x == cube_food.position.x))
-                    {
-                        console.log("Connected");
-                        snake_body.push(cube_food);
-                        food_for_snake.splice(i,1);     // delete food from the array
-                        generateFood(1);                // add new food 
-                        break;
-                    }
-                }
-
+                console.log("Pressed");
+                if (keyCode == 87) {
+                    direction = 'up';
+                } else if (keyCode == 83) {
+                    direction = 'down';
+                } else if (keyCode == 65) {
+                    direction = 'left';
+                } else if (keyCode == 68) {
+                    direction = 'right';
+                } 
             };
+
+            // trigger move function every 'x' miliseconds
+            setInterval( function move()
+            { 
+                if(direction != 'none')
+                {
+                    for (var i = 0; i < snake_body.length; i++)
+                    {
+
+                        console.log("Body length: " + snake_body.length);
+
+                        if(i == 0)  // move snake head snake_body[0] is head
+                        {
+                            old_x_pos = snake_body[i].position.x;
+                            old_y_pos = snake_body[i].position.y;
+                            //console.log("Pressed");
+                            if (direction == 'up') {
+                                snake_body[i].position.y += ySpeed;
+                            } else if (direction == 'down') {
+                                snake_body[i].position.y -= ySpeed;
+                            } else if (direction == 'left') {
+                                snake_body[i].position.x -= xSpeed;
+                            } else if (direction == 'right') {
+                                snake_body[i].position.x += xSpeed;
+                            } 
+                            
+                            if(isOverYourself(snake_body[i].position.x, snake_body[i].position.y))
+                            {
+                                console.log("Game over");
+                                window.alert("Game over, your score is only: " + (snake_body.length-1) +" . Ha, what a loser!");
+                                location.reload();
+                            }
+                        }
+                        else    // move rest of the body
+                        {
+                            // store actual position of body element
+                            temp_old_x_pos = snake_body[i].position.x;
+                            temp_old_y_pos = snake_body[i].position.y;
+                            // move body element
+                            snake_body[i].position.x = old_x_pos;
+                            snake_body[i].position.y = old_y_pos;
+                            // restore position before element was moved
+                            old_x_pos = temp_old_x_pos;
+                            old_y_pos = temp_old_y_pos;
+
+                        }
+                    }
+
+                    // check food connection
+                    var food_length = food_for_snake.length;
+                    for (var i = 0; i < food_length; i++)
+                    {
+                        cube_head = snake_body[0];
+                        cube_food = food_for_snake[i];
+                        // first two equations -> connected in x - axis, second two equations -> connected in y axis
+                        if((cube_head.position.x == cube_food.position.x-1 && cube_head.position.y == cube_food.position.y) 
+                        || (cube_head.position.x == cube_food.position.x+1 && cube_head.position.y == cube_food.position.y)
+                        || (cube_head.position.y == cube_food.position.y-1 && cube_head.position.x == cube_food.position.x) 
+                        || (cube_head.position.y == cube_food.position.y+1 && cube_head.position.x == cube_food.position.x))
+                        {
+                            console.log("Connected");
+                            snake_body.push(cube_food);
+                            food_for_snake.splice(i,1);     // delete food from the array
+                            generateFood(1);                // add new food 
+                            break;
+                        }
+                    }
+                }
+
+            }, 200);  // ms
             
             var render = function () {
               requestAnimationFrame( render );
-             // cube.rotation.x += 0.1;
-              //cube.rotation.y += 0.1;
               renderer.render( scene, camera );
             };
             
